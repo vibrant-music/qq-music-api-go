@@ -9,4 +9,7 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/search", controllers.Search)
 	r.GET("/search/hot", controllers.HotSearch)
 	r.GET("/search/quick", controllers.QuickSearch)
+
+	r.GET("/album", controllers.AlbumInfo)
+	r.GET("/album/songs", controllers.AlbumSongs)
 }

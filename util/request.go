@@ -1,13 +1,31 @@
 package util
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
-func MakeRequest(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+func MakeRequest(url string, data interface{}) (map[string]interface{}, error) {
+	var req *http.Request
+	var err error
+
+	if data != nil {
+		jsonData, _ := json.Marshal(data)
+		req, err = http.NewRequest("GET", url, bytes.NewBuffer(jsonData))
+	} else {
+		req, err = http.NewRequest("GET", url, nil)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Referer", "https://y.qq.com")
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -22,5 +40,26 @@ func MakeRequest(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	return body, nil
+	var result map[string]interface{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func MakeRequestRaw(url string, data interface{}) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(body), nil
 }
