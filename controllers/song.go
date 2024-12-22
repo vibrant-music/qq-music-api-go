@@ -60,12 +60,10 @@ func GetSongDownloadURL(c *gin.Context) {
 	for k, v := range c.Request.PostForm {
 		obj[k] = v[0]
 	}
-
 	globalCookie := util.GetGlobalCookie()
-	uin, qqmusic_key := globalCookie.UserCookie()
-	if obj["ownCookie"] == "1" {
-		uin = c.GetHeader("uin")
-	}
+	userCookie := globalCookie.UserCookie()
+	uin := userCookie["uin"]
+	qqmusicKey := userCookie["qqmusic_key"]
 
 	id := obj["id"]
 	if id == "" {
@@ -96,7 +94,7 @@ func GetSongDownloadURL(c *gin.Context) {
 	guid := fmt.Sprintf("%d", rand.Intn(10000000))
 
 	cacheKey := "song_url_" + file
-	cacheData, found := utils.CacheGet(cacheKey)
+	cacheData, found := util.GetCache(cacheKey)
 	if found {
 		c.JSON(http.StatusOK, cacheData)
 		return
@@ -129,16 +127,16 @@ func GetSongDownloadURL(c *gin.Context) {
 					},
 				},
 				"comm": map[string]interface{}{
-					"uin":    uin,
+					"uin":    userCookie,
 					"format": "json",
 					"ct":     19,
 					"cv":     0,
-					"authst": qqmusic_key,
+					"authst": qqmusicKey,
 				},
 			},
 		}
 
-		result, err := utils.MakeRequest("https://u.y.qq.com/cgi-bin/musicu.fcg", data, nil)
+		result, err := util.MakeRequest("https://u.y.qq.com/cgi-bin/musicu.fcg", data)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"result": 500,
@@ -191,8 +189,9 @@ func GetSongDownloadURL(c *gin.Context) {
 		"data":   domain + purl,
 		"result": 100,
 	}
+	util.SetCache(cacheKey, cacheData, 24*3600)
+
 	c.JSON(http.StatusOK, cacheData)
-	utils.CacheSet(cacheKey, cacheData)
 }
 
 func GetSongPlayURL(c *gin.Context) {
@@ -204,11 +203,9 @@ func GetSongPlayURL(c *gin.Context) {
 		obj[k] = v[0]
 	}
 
-	globalCookie := utils.GetGlobalCookie()
-	uin := globalCookie.UserCookie().Uin
-	if obj["ownCookie"] == "1" {
-		uin = c.GetHeader("uin")
-	}
+	globalCookie := util.GetGlobalCookie()
+	userCookie := globalCookie.UserCookie()
+	uin := userCookie["uin"]
 
 	id := obj["id"]
 	if id == "" {
@@ -222,7 +219,7 @@ func GetSongPlayURL(c *gin.Context) {
 	idArr := strings.Split(id, ",")
 	idStr := strings.Join(idArr, `","`)
 	cacheKey := "song_url_" + idStr
-	cacheData, found := utils.CacheGet(cacheKey)
+	cacheData, found := util.GetCache(cacheKey)
 	if found {
 		c.JSON(http.StatusOK, cacheData)
 		return
@@ -233,7 +230,7 @@ func GetSongPlayURL(c *gin.Context) {
 	var result map[string]interface{}
 	var err error
 	for count := 0; count < 5; count++ {
-		result, err = utils.MakeRequest(url, nil, nil)
+		result, err = util.MakeRequest(url, nil)
 		if err == nil && result["req_0"].(map[string]interface{})["data"].(map[string]interface{})["testfile2g"] != nil {
 			break
 		}
@@ -272,6 +269,6 @@ func GetSongPlayURL(c *gin.Context) {
 		"data":   data,
 		"result": 100,
 	}
+	util.SetCache(cacheKey, cacheData, 24*3600)
 	c.JSON(http.StatusOK, cacheData)
-	utils.CacheSet(cacheKey, cacheData)
 }

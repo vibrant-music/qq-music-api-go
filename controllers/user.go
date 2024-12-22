@@ -71,7 +71,7 @@ func GetCookie(c *gin.Context) {
 
 		c.JSON(http.StatusOK, gin.H{
 			"result":  100,
-			"message": "设置 cookie 成功",
+			"message": "获取 cookie 成功",
 		})
 		return
 	}
@@ -89,7 +89,7 @@ func GetCookie(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"result":  100,
-		"message": "设置 cookie 成功",
+		"message": "获取 cookie 成功",
 	})
 }
 

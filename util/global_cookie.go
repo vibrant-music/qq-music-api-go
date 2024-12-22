@@ -16,6 +16,10 @@ type GlobalCookie struct {
 var globalCookieInstance *GlobalCookie
 var once sync.Once
 
+func init() {
+	GetGlobalCookie()
+}
+
 func GetGlobalCookie() *GlobalCookie {
 	once.Do(func() {
 		globalCookieInstance = &GlobalCookie{

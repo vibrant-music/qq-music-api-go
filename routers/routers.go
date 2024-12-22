@@ -10,7 +10,7 @@ func SetupRoutes(r *gin.Engine) {
 
 	r.GET("/user/cookie", controllers.Cookie)
 	r.POST("/user/setCookie", controllers.SetCookie)
-	r.GET("/user/getCookie", controllers.Cookie)
+	r.GET("/user/getCookie", controllers.GetCookie)
 	r.POST("/user/refresh", controllers.Refresh)
 
 	r.GET("/search", controllers.Search)
@@ -45,6 +45,6 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/singer/songs", controllers.GetSingerSongs)
 
 	r.GET("/song", controllers.GetSongDetail)
-	r.POST("/song/url", controllers.GetSongDownloadURL)
-	r.POST("/song/urls", controllers.GetSongPlayURL)
+	r.GET("/song/url", controllers.GetSongDownloadURL)
+	r.GET("/song/urls", controllers.GetSongPlayURL)
 }

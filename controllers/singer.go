@@ -81,7 +81,7 @@ func GetSingerDesc(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
-	util.SetCache(cacheKey, result, 24*60)
+	util.SetCache(cacheKey, result, 24*3600)
 }
 
 func isArray(value interface{}) bool {
@@ -158,7 +158,7 @@ func GetSingerAlbum(c *gin.Context) {
 			},
 		}
 		c.JSON(http.StatusOK, cacheData)
-		util.SetCache(cacheKey, cacheData, 2*60)
+		util.SetCache(cacheKey, cacheData, 24*60*60)
 	}
 }
 
@@ -241,6 +241,6 @@ func GetSingerSongs(c *gin.Context) {
 			},
 		}
 		c.JSON(http.StatusOK, cacheData)
-		util.SetCache(cacheKey, cacheData, 2*60)
+		util.SetCache(cacheKey, cacheData, 24*3600)
 	}
 }

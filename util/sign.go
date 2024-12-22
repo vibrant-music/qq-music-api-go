@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"reflect"
 )
 
 func GetSign(obj interface{}) (string, error) {
@@ -28,23 +27,4 @@ func GetSign(obj interface{}) (string, error) {
 func generateSign(data string) string {
 	hash := md5.Sum([]byte(data))
 	return hex.EncodeToString(hash[:])
-}
-
-var globalObject = func() interface{} {
-	if self := reflect.ValueOf("self"); self.IsValid() {
-		return self
-	}
-	if window := reflect.ValueOf("window"); window.IsValid() {
-		return window
-	}
-	if global := reflect.ValueOf("global"); global.IsValid() {
-		return global
-	}
-	panic("unable to locate global object")
-}()
-
-func init() {
-	globalObject.(map[string]interface{})["__sign_hash_20200305"] = func(e string) string {
-		return generateSign(e)
-	}
 }
