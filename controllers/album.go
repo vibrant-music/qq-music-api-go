@@ -87,10 +87,16 @@ func AlbumSongs(c *gin.Context) {
 		return
 	}
 
-	resData := gin.H{
+	resData := map[string]interface{}{
 		"result": 100,
-		"data": gin.H{
-			"list":     result["albumSonglist"].(map[string]interface{})["data"].(map[string]interface{})["songList"],
+		"data": map[string]interface{}{
+			"list": func() []interface{} {
+				var list []interface{}
+				for _, item := range result["albumSonglist"].(map[string]interface{})["data"].(map[string]interface{})["songList"].([]interface{}) {
+					list = append(list, item.(map[string]interface{})["songInfo"])
+				}
+				return list
+			}(),
 			"total":    result["albumSonglist"].(map[string]interface{})["data"].(map[string]interface{})["totalNum"],
 			"albummid": result["albumSonglist"].(map[string]interface{})["data"].(map[string]interface{})["albumMid"],
 		},

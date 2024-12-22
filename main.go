@@ -11,6 +11,9 @@ import (
 func main() {
 	r := gin.Default()
 
+	// Load HTML templates
+	r.LoadHTMLGlob("templates/*")
+
 	// 设置路由
 	routes.SetupRoutes(r)
 
