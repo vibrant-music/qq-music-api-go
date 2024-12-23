@@ -1,2 +1,4 @@
 /data/allCookies.json
 /data/cookie.json
+/.idea/.gitignore
+/go.sum
