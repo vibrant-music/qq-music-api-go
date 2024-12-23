@@ -3,9 +3,12 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	logger "github.com/sirupsen/logrus"
 	"math/rand"
 	"net/http"
+	"qq-music-api/constant"
 	"qq-music-api/util"
+	"runtime/debug"
 	"strings"
 )
 
@@ -53,6 +56,16 @@ func GetSongDetail(c *gin.Context) {
 }
 
 func GetSongDownloadURL(c *gin.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Errorf("GetSongDownloadURL panic recovered = %v, stack = %v", r, debug.Stack())
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"result": 500,
+				"errMsg": fmt.Sprintf("Internal server err: %v", r),
+			})
+		}
+	}()
+
 	obj := make(map[string]string)
 	for k, v := range c.Request.URL.Query() {
 		obj[k] = v[0]
@@ -102,6 +115,29 @@ func GetSongDownloadURL(c *gin.Context) {
 
 	var purl, domain string
 	for count := 0; purl == "" && count < 10; count++ {
+		innerData := map[string]interface{}{
+			"req_0": map[string]interface{}{
+				"module": "vkey.GetVkeyServer",
+				"method": "CgiGetVkey",
+				"param": map[string]interface{}{
+					"filename":  []string{file},
+					"guid":      guid,
+					"songmid":   []string{id},
+					"songtype":  []int{0},
+					"uin":       uin,
+					"loginflag": 1,
+					"platform":  "20",
+				},
+			},
+			"comm": map[string]interface{}{
+				"uin":    userCookie,
+				"format": "json",
+				"ct":     19,
+				"cv":     0,
+				"authst": qqmusicKey,
+			},
+		}
+		innerDateStr := util.Stringify(innerData)
 		data := map[string]interface{}{
 			"-":           "getplaysongvkey",
 			"g_tk":        5381,
@@ -112,31 +148,10 @@ func GetSongDownloadURL(c *gin.Context) {
 			"outCharset":  "utf-8",
 			"platform":    "yqq.json",
 			"needNewCode": 0,
-			"data": map[string]interface{}{
-				"req_0": map[string]interface{}{
-					"module": "vkey.GetVkeyServer",
-					"method": "CgiGetVkey",
-					"param": map[string]interface{}{
-						"filename":  []string{file},
-						"guid":      guid,
-						"songmid":   []string{id},
-						"songtype":  []int{0},
-						"uin":       uin,
-						"loginflag": 1,
-						"platform":  "20",
-					},
-				},
-				"comm": map[string]interface{}{
-					"uin":    userCookie,
-					"format": "json",
-					"ct":     19,
-					"cv":     0,
-					"authst": qqmusicKey,
-				},
-			},
+			"data":        innerDateStr,
 		}
 
-		result, err := util.MakeRequest("https://u.y.qq.com/cgi-bin/musicu.fcg", data)
+		result, err := util.MakeRequestV2(constant.HTTPGet, "https://u.y.qq.com/cgi-bin/musicu.fcg", data)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"result": 500,
@@ -195,6 +210,16 @@ func GetSongDownloadURL(c *gin.Context) {
 }
 
 func GetSongPlayURL(c *gin.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Errorf("GetSongPlayURL panic recovered = %v, stack = %v", r, debug.Stack())
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"result": 500,
+				"errMsg": fmt.Sprintf("Internal server err: %v", r),
+			})
+		}
+	}()
+
 	obj := make(map[string]string)
 	for k, v := range c.Request.URL.Query() {
 		obj[k] = v[0]
