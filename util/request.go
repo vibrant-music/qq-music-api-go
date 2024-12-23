@@ -85,11 +85,13 @@ func MakeRequestV2(method constant.HTTPMethod, baseUrl string, data interface{})
 		if uErr != nil {
 			return nil, uErr
 		}
-		query := urlWithParams.Query()
+		query := url.Values{}
 		for key, value := range data.(map[string]interface{}) {
 			query.Set(key, fmt.Sprintf("%v", value))
 		}
 		urlWithParams.RawQuery = query.Encode()
+		xxx := urlWithParams.String()
+		fmt.Println(xxx)
 		req, err = http.NewRequest("GET", urlWithParams.String(), nil)
 	case constant.HTTPPost:
 		req, err = http.NewRequest("POST", baseUrl, buffer)

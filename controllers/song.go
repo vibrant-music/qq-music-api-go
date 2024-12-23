@@ -86,6 +86,9 @@ func GetSongDownloadURL(c *gin.Context) {
 		})
 		return
 	}
+	if obj["mediaId"] == "" {
+		obj["mediaId"] = id
+	}
 
 	typeMap := map[string]map[string]string{
 		"m4a":  {"s": "C400", "e": ".m4a"},
@@ -130,7 +133,7 @@ func GetSongDownloadURL(c *gin.Context) {
 				},
 			},
 			"comm": map[string]interface{}{
-				"uin":    userCookie,
+				"uin":    uin,
 				"format": "json",
 				"ct":     19,
 				"cv":     0,
