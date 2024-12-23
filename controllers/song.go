@@ -212,6 +212,7 @@ func GetSongDownloadURL(c *gin.Context) {
 	c.JSON(http.StatusOK, cacheData)
 }
 
+// GetSongPlayURL todo transfrom
 func GetSongPlayURL(c *gin.Context) {
 	defer func() {
 		if r := recover(); r != nil {
