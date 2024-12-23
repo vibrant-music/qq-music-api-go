@@ -1,8 +1,13 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	jsoniter "github.com/json-iterator/go"
 	"net/http"
+	"qq-music-api/constant"
+	"qq-music-api/model/search"
 	"qq-music-api/util"
 	"strconv"
 )
@@ -47,25 +52,25 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	data := map[string]string{
+	data := map[string]interface{}{
 		"format": "json",
-		"n":      strconv.Itoa(pageSize),
-		"p":      strconv.Itoa(pageNo),
+		"n":      pageSize,
+		"p":      pageNo,
 		"w":      key,
-		"cr":     "1",
-		"g_tk":   "5381",
-		"t":      strconv.Itoa(t),
+		"cr":     1,
+		"g_tk":   5381,
+		"t":      t,
 	}
 
 	if t == 2 {
-		data = map[string]string{
+		data = map[string]interface{}{
 			"query":        key,
-			"page_no":      strconv.Itoa(pageNo - 1),
-			"num_per_page": strconv.Itoa(pageSize),
+			"page_no":      pageNo - 1,
+			"num_per_page": pageSize,
 		}
 	}
 
-	result, err := util.MakeRequest(url, data)
+	result, err := util.MakeRequestV2(constant.HTTPGet, url, data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"result": 500, "errMsg": "搜索请求失败"})
 		return
@@ -76,31 +81,36 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	// Process and format the result data
-	keyword := result["data"].(map[string]interface{})["keyword"].(string)
-	keyMap := map[int]string{
-		0:  "song",
-		2:  "",
-		7:  "lyric",
-		8:  "album",
-		12: "mv",
-		9:  "singer",
+	var rsp search.Response
+	resJson, _ := json.Marshal(result)
+	err = jsoniter.Unmarshal(resJson, &rsp)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"result": 500, "errMsg": fmt.Sprintf("搜索请求失败 %v", err)})
+		return
 	}
-	searchResult := result["data"].(map[string]interface{})[keyMap[t]].(map[string]interface{})
-	list := searchResult["list"]
-	curpage := searchResult["curpage"].(int)
-	curnum := searchResult["curnum"].(int)
-	totalnum := searchResult["totalnum"].(int)
-	page_no := searchResult["page_no"].(int)
-	num_per_page := searchResult["num_per_page"].(int)
-	display_num := searchResult["display_num"].(int)
+
+	// Process and format the result data
+	keyword := rsp.Data.Keyword
+	//keyMap := map[int]string{
+	//	0:  "song",
+	//	2:  "",
+	//	7:  "lyric",
+	//	8:  "album",
+	//	12: "mv",
+	//	9:  "singer",
+	//}
+	searchResult := rsp.Data.Song
+	list := searchResult.List
+	curpage := searchResult.CurPage
+	curnum := searchResult.CurNum
+	totalnum := searchResult.TotalNum
 
 	var total int
 	switch t {
 	case 2:
-		pageNo = page_no + 1
-		pageSize = num_per_page
-		total = display_num
+		//pageNo = page_no + 1
+		//pageSize = num_per_page
+		//total = display_num
 	default:
 		pageNo = curpage
 		pageSize = curnum
