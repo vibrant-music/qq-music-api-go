@@ -130,7 +130,7 @@ func Search(c *gin.Context) {
 		},
 	}
 
-	util.SetCache(cacheKey, resData, 24*3600)
+	util.SetCache(cacheKey, resData, constant.OneDaySeconds)
 	c.JSON(http.StatusOK, resData)
 }
 

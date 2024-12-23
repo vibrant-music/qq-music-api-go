@@ -207,7 +207,7 @@ func GetSongDownloadURL(c *gin.Context) {
 		"data":   domain + purl,
 		"result": 100,
 	}
-	util.SetCache(cacheKey, cacheData, 24*3600)
+	util.SetCache(cacheKey, cacheData, constant.OneDaySeconds)
 
 	c.JSON(http.StatusOK, cacheData)
 }
@@ -297,6 +297,6 @@ func GetSongPlayURL(c *gin.Context) {
 		"data":   data,
 		"result": 100,
 	}
-	util.SetCache(cacheKey, cacheData, 24*3600)
+	util.SetCache(cacheKey, cacheData, constant.OneDaySeconds)
 	c.JSON(http.StatusOK, cacheData)
 }

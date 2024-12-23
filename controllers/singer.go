@@ -5,6 +5,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"qq-music-api/constant"
 	"qq-music-api/util"
 	"reflect"
 	"strconv"
@@ -81,7 +82,7 @@ func GetSingerDesc(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
-	util.SetCache(cacheKey, result, 24*3600)
+	util.SetCache(cacheKey, result, constant.OneDaySeconds)
 }
 
 func isArray(value interface{}) bool {
@@ -158,7 +159,7 @@ func GetSingerAlbum(c *gin.Context) {
 			},
 		}
 		c.JSON(http.StatusOK, cacheData)
-		util.SetCache(cacheKey, cacheData, 24*60*60)
+		util.SetCache(cacheKey, cacheData, constant.OneDaySeconds)
 	}
 }
 
@@ -241,6 +242,6 @@ func GetSingerSongs(c *gin.Context) {
 			},
 		}
 		c.JSON(http.StatusOK, cacheData)
-		util.SetCache(cacheKey, cacheData, 24*3600)
+		util.SetCache(cacheKey, cacheData, constant.OneDaySeconds)
 	}
 }

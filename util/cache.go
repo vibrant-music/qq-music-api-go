@@ -7,7 +7,6 @@ import (
 
 var Cache = cache.New(5*time.Minute, 10*time.Minute)
 
-// GetCache TODO check
 func GetCache(key string) (interface{}, bool) {
 	return Cache.Get(key)
 }
