@@ -1,9 +1,5 @@
 package constant
 
-const (
-	QQ int64 = 501924917
-)
-
 type HTTPMethod string
 
 // 定义常量
